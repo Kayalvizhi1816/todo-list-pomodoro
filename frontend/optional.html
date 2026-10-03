@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Choose Option - ToDo & Pomodoro</title>
+<style>
+body{
+    font-family: Arial, sans-serif;
+    background: linear-gradient(45deg,rgb(144, 216, 43) , rgb(148, 114, 227));;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+.container{
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    text-align: center;
+    width: 400px;
+}
+h1{
+    margin-bottom: 1.5rem;
+}
+button{
+    width: 80%;
+    padding: 0.7rem;
+    margin: 0.5rem 0;
+    border: none;
+    border-radius: 5px;
+    background-color: #4CAF50;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: 0.3s;
+}
+button:hover{
+    background-color: #45a049;
+    transform: scale(1.15);
+}
+</style>
+</head>
+<body>
+    <div class="container">
+        <h2>Choose Your Option</h2>
+        <button id="todoBtn">📝 To-Do List</button>
+        <button id="pomodoroBtn">⏰ Pomodoro Clock</button>
+    </div>
+
+<script>
+    // Check if user is logged in
+    const userId = localStorage.getItem('userId');
+    if(!userId){
+        alert("Please login first!");
+        window.location.href = 'index.html';
+    }
+
+    // Redirect buttons
+    document.getElementById('todoBtn').addEventListener('click', () => {
+        window.location.href = 'todo.html';
+    });
+
+    document.getElementById('pomodoroBtn').addEventListener('click', () => {
+        window.location.href = 'pomodoro.html';
+    });
+</script>
+</body>
+</html>

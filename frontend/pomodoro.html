@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pomodoro Clock</title>
+<style>
+body{
+  background: linear-gradient(135deg, #5bceed, #ff9472);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: 'Segoe UI', sans-serif;
+}
+.container{
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    text-align: center;
+    width: 350px;
+    position: relative;
+}
+h1{
+    margin-bottom: 1rem;
+}
+#modeButtons button{
+    padding:0.5rem 1rem;
+    margin:0.3rem;
+    border:none;
+    border-radius:5px;
+    cursor:pointer;
+    background:#2196F3;
+    color:white;
+    font-size:1rem;
+}
+#modeButtons button:hover{
+    background:#1976D2;
+    transform: scale(1.05);
+}
+#timer{
+    font-size:3rem;
+    margin:1rem 0;
+}
+#controlButtons{
+
+    justify-content: center;
+}
+#controlButtons button{
+    flex: 1 1 40%;
+    margin:5px;
+    padding:0.5rem 1rem;
+    border:none;
+    border-radius:5px;
+    cursor:pointer;
+    background:  #ff9482;
+    color:white;
+    font-size:1rem;
+}
+#controlButtons button:hover{
+    background:  #ff9472;
+    transform: scale(1.05);
+}
+#switchBtn{
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    padding: 0.5rem 1rem;
+    background: black;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    cursor:pointer;
+}
+#switchBtn:hover{
+    transform: scale(1.15);
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>Pomodoro Clock⏰</h1>
+    <div id="modeButtons">
+        <button id="workBtn">Work Time🔥</button>
+        <button id="breakBtn">Break Time😌</button>
+    </div>
+    <div id="timer">25:00</div>
+    <div id="controlButtons">
+        <button id="startBtn">Start⏳</button>
+        <button id="pauseBtn">Pause⏸</button>
+        <button id="resumeBtn">Resume▶️</button>
+    </div>
+</div>
+
+<button id="switchBtn">Go to To-Do</button>
+
+<audio id="alarmAudio" src="alarm.mp3" preload="auto"></audio>
+
+<script>
+let totalSeconds = 25*60; // default work
+let interval = null;
+
+const timerDisplay = document.getElementById('timer');
+const startBtn = document.getElementById('startBtn');
+const pauseBtn = document.getElementById('pauseBtn');
+const resumeBtn = document.getElementById('resumeBtn');
+
+
+const workBtn = document.getElementById('workBtn');
+const breakBtn = document.getElementById('breakBtn');
+const alarmAudio = document.getElementById('alarmAudio');
+const switchBtn = document.getElementById('switchBtn');
+
+function updateTimerDisplay(){
+    let minutes = Math.floor(totalSeconds / 60);
+    let seconds = totalSeconds % 60;
+    timerDisplay.textContent = `${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
+}
+
+function startTimer(){
+    if(interval) clearInterval(interval);
+    interval = setInterval(()=>{
+        if(totalSeconds>0){
+            totalSeconds--;
+            updateTimerDisplay();
+        } else {
+            clearInterval(interval);
+            alarmAudio.play();
+            alert("⏰ Time's up!");
+        }
+    },1000);
+}
+
+function resetTimer(){
+    clearInterval(interval);
+    updateTimerDisplay();
+}
+
+// Work Button
+workBtn.addEventListener('click', ()=>{
+    totalSeconds = 25*60;
+    resetTimer();
+});
+
+// Break Button
+breakBtn.addEventListener('click', ()=>{
+    totalSeconds = 5*60;
+    resetTimer();
+});
+
+// Start
+startBtn.addEventListener('click', startTimer);
+
+// Pause
+pauseBtn.addEventListener('click', ()=>{
+    clearInterval(interval);
+});
+
+// Resume
+resumeBtn.addEventListener('click', startTimer);
+
+
+
+updateTimerDisplay();
+
+// Switch to To-Do
+switchBtn.addEventListener('click', ()=>{
+    window.location.href = 'todo.html';
+});
+</script>
+</body>
+</html>

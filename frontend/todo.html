@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>To-Do List</title>
+<style>
+body{
+   font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #cb5429, #66a6ff);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 30px;
+}
+.container{
+    max-width: 600px;
+    margin: 50px auto;
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+h1{
+    text-align: center;
+}
+form{
+    display: flex;
+    gap: 10px;
+    margin-bottom: 1rem;
+}
+form input{
+    flex: 1;
+    padding: 0.5rem;
+    border-radius:5px;
+    border:1px solid #ccc;
+}
+form button{
+    padding:0.5rem 1rem;
+    border:none;
+    border-radius:5px;
+    background:#4CAF50;
+    color:white;
+    cursor:pointer;
+}
+form button:hover{
+    background:#45a049;
+}
+ul{
+    list-style:none;
+    padding:0;
+}
+li{
+    padding:0.5rem;
+    border-bottom:1px solid #ddd;
+    display:flex;
+    justify-content: space-between;
+    align-items: center;
+}
+li.completed span{
+    text-decoration: line-through;
+    color: gray;
+}
+button.taskBtn{
+    margin-left: 5px;
+    padding: 3px 6px;
+    border:none;
+    border-radius:3px;
+    cursor:pointer;
+}
+button.editBtn{background:#2196F3;color:white;}
+button.deleteBtn{background:#f44336;color:white;}
+button.completeBtn{background:#FF9800;color:white;}
+#switchPomodoro:hover{
+    transform: scale(1.15);
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>My To-Do List📝</h1>
+    <form id="taskForm">
+        <input type="text" id="title" placeholder="Task title" required>
+        <input type="text" id="description" placeholder="Task description">
+        <button type="submit">Add Task</button>
+    </form>
+    <ul id="taskList"></ul>
+</div>
+<button id="switchPomodoro" style="
+position: fixed;
+right: 20px;
+bottom: 20px;
+padding: 0.5rem 1rem;
+background: black;
+color: white;
+border: none;
+border-radius: 50px;
+cursor:pointer;
+">Go to Pomodoro</button>
+
+<script>
+const userId = localStorage.getItem('userId');
+if(!userId){
+    alert("Please login first!");
+    window.location.href = 'index.html';
+}
+
+// Fetch and display tasks
+async function fetchTasks(){
+    const res = await fetch(`http://localhost:5000/api/tasks/${userId}`);
+    const tasks = await res.json();
+    const taskList = document.getElementById('taskList');
+    taskList.innerHTML = '';
+    tasks.forEach(task => {
+        const li = document.createElement('li');
+        li.className = task.status === 'completed' ? 'completed' : '';
+        li.innerHTML = `<span>${task.title} - ${task.description || ''}</span>
+            <div>
+                <button class="completeBtn taskBtn">${task.status==='completed'?'Undo':'Done'}</button>
+                <button class="editBtn taskBtn">Edit</button>
+                <button class="deleteBtn taskBtn">Delete</button>
+            </div>`;
+        taskList.appendChild(li);
+
+        // Complete/Undo
+        li.querySelector('.completeBtn').addEventListener('click', async () => {
+            const newStatus = task.status === 'completed' ? 'pending' : 'completed';
+            await fetch(`http://localhost:5000/api/tasks/${task._id}`,{
+                method:'PUT',
+                headers:{'Content-Type':'application/json'},
+                body: JSON.stringify({status:newStatus})
+            });
+            fetchTasks();
+        });
+
+        // Edit
+        li.querySelector('.editBtn').addEventListener('click', async () => {
+            const newTitle = prompt("Edit title", task.title);
+            const newDesc = prompt("Edit description", task.description);
+            if(newTitle){
+                await fetch(`http://localhost:5000/api/tasks/${task._id}`,{
+                    method:'PUT',
+                    headers:{'Content-Type':'application/json'},
+                    body: JSON.stringify({title:newTitle, description:newDesc})
+                });
+                fetchTasks();
+            }
+        });
+
+        // Delete
+        li.querySelector('.deleteBtn').addEventListener('click', async () => {
+            if(confirm("Are you sure to delete?")){
+                await fetch(`http://localhost:5000/api/tasks/${task._id}`,{
+                    method:'DELETE'
+                });
+                fetchTasks();
+            }
+        });
+    });
+}
+
+// Add new task
+document.getElementById('taskForm').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const title = document.getElementById('title').value;
+    const description = document.getElementById('description').value;
+
+    await fetch('http://localhost:5000/api/tasks',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({userId, title, description})
+    });
+
+    document.getElementById('taskForm').reset();
+    fetchTasks();
+});
+
+// Initial fetch
+fetchTasks();
+document.getElementById('switchPomodoro').addEventListener('click', ()=>{
+    window.location.href = 'pomodoro.html';
+});
+</script>
+</body>
+</html>
